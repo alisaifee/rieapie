@@ -9,7 +9,14 @@ Random example for accessing a rest api using rieapie.
 
     import rieapie 
     gmap = rieapie.Rieapie("http://maps.googleapis.com/maps/api")
-    directions = gmap.directions.json.get(origin="Toronto",destination="Montreal", avoid="highways", mode="bicycling", sensor="false")
+    args = {
+    origin        : "Toronto",
+    , destination : "Montreal"
+    , avoid       : "highways"
+    , mode        : "bicycling"
+    , sensor      : "false"
+    }
+    directions = gmap.directions.json.get(**args)
     print directions["routes"][0]["bounds"]
 
 WTF is that name?
