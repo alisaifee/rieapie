@@ -25,6 +25,7 @@ setup(
     url="http://github.com/alisaifee/rieapie",
     zip_safe = False,
     version=rieapie.version,
+    classifiers=[k for k in open('CLASSIFIERS').read().split('\n') if k],
     include_package_data = True,
     install_requires = REQUIREMENTS,
     description='Easy REST api wrapper',
