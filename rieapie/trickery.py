@@ -43,6 +43,9 @@ class Component(object):
     def create(self, **kwargs):
         raise NotImplementedError()
 
+    def update(self, **kwargs):
+        raise NotImplementedError()
+
 
 class Rieapie(object):
     def __init__(self, base_url):
