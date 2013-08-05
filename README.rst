@@ -8,7 +8,7 @@ An example for accessing google maps rest api using rieapie.
 .. code-block:: python
 
     import rieapie 
-    gmap = rieapie.Rieapie("http://maps.googleapis.com/maps/api")
+    gmap = rieapie.Api("http://maps.googleapis.com/maps/api")
     args = {
     origin        : "Toronto",
     , destination : "Montreal"

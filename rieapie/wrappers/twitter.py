@@ -2,14 +2,14 @@ import rieapie
 import urllib
 import base64
 import requests
-class Twitter(rieapie.Rieapie):
+class Twitter(rieapie.Api):
     def __init__(self, consumer_key, consumer_secret):
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.base_url = "https://api.twitter.com/1.1"
         bearer_token = self.obtain_bearer_token()
         headers = {"Authorization":"Bearer %s" % bearer_token}
-        rieapie.Rieapie.__init__(self
+        rieapie.Api.__init__(self
                                 , self.base_url
                                 , request_headers = headers)
     def obtain_bearer_token(self):
