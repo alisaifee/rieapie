@@ -1,5 +1,6 @@
 import urllib
 import requests
+import json
 
 class Component(object):
     def __init__(self, name, rieapie, parent=None):
@@ -33,18 +34,26 @@ class Component(object):
             self.name += ".%s" % ext
         return self
 
-    def get(self, **kwargs):
+    def __getitem__(self, key):
+        return Component(key, self.rieapie, self)
+
+    def get(self,  **kwargs):
         url = self.full_path() + "?" + urllib.urlencode(kwargs)
-        return requests.get( self.rieapie.pre_request(url) ).json()
+        resp = requests.get( self.rieapie.pre_request(url) )
+        return resp.json()
 
     def delete(self, **kwargs):
-        raise NotImplementedError()
+        url = self.full_path()+"?"+urllib.urlencode(kwargs)
+        resp = requests.delete( self.rieapie.pre_request(url, kwargs))
+        return resp.json()
 
     def create(self, **kwargs):
         raise NotImplementedError()
 
     def update(self, **kwargs):
-        raise NotImplementedError()
+        url = self.full_path()+"?"
+        resp = requests.post( self.rieapie.pre_request(url, kwargs), data=json.dumps(kwargs))
+        return resp.json()
 
 
 class Rieapie(object):
@@ -56,5 +65,5 @@ class Rieapie(object):
         except:
             return Component(key, self, None)
 
-    def pre_request(self, url):
+    def pre_request(self, url, payload):
         return url
