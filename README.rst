@@ -3,7 +3,7 @@ rieapie
 
 Introduction
 ============
-Random example for accessing a rest api using rieapie.
+An example for accessing google maps rest api using rieapie.
 
 .. code-block:: python
 
@@ -18,6 +18,18 @@ Random example for accessing a rest api using rieapie.
     }
     directions = gmap.directions.json.get(**args)
     print directions["routes"][0]["bounds"]
+
+An example for accessing the twitter api with the provided twitter wrapper.
+
+.. code-block:: python
+
+    import rieapie
+    twitter = rieapie.wrappers.Twitter("consumer_key", "consumer_secret")
+    timeline = twitter.statuses.user_timeline(ext="json")
+    timeline = twitter.statuses["user_timeline.json"]
+    for status in timeline.get(count=10, screen_name="mybestfriend"):
+        print status['text']
+
 
 WTF is that name?
 ================= 
