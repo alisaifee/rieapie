@@ -26,6 +26,7 @@ An example for accessing the twitter api with the provided twitter wrapper.
     import rieapie
     twitter = rieapie.wrappers.Twitter("consumer_key", "consumer_secret")
     timeline = twitter.statuses.user_timeline(ext="json")
+    # or if you prefer this syntax 
     timeline = twitter.statuses["user_timeline.json"]
     for status in timeline.get(count=10, screen_name="mybestfriend"):
         print status['text']
