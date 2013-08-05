@@ -21,7 +21,7 @@ setup(
     name='rieapie',
     author = __author__,
     author_email = __email__,
-    license = "MIT",
+    license = open('LICENSE.txt').read(),
     url="http://github.com/alisaifee/rieapie",
     zip_safe = False,
     version=rieapie.version,
