@@ -27,7 +27,7 @@ class Component(object):
         return "/".join(reversed(path))
 
     def __repr__(self):
-        return self.name
+        return self.path().replace("/",".")
 
     def __call__(self, ext=""):
         if ext:
