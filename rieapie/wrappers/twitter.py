@@ -15,7 +15,7 @@ class Twitter(rieapie.Api):
         self.access_token = access_token
         self.access_token_secret = access_token_secret
         self.base_url = "https://api.twitter.com/1.1"
-        rieapie.Api.__init__(self, self.base_url, debug=True)
+        rieapie.Api.__init__(self, self.base_url)
 
     def obtain_bearer_token(self):
         """
@@ -59,6 +59,12 @@ class Twitter(rieapie.Api):
             hhmac.update(o_sig_string)
             o_sig = urllib.quote_plus(base64.b64encode(hhmac.digest()))
             o_token = self.access_token
-            auth_string = 'OAuth oauth_consumer_key="%(oc_key)s", oauth_nonce="%(o_nonce)s", oauth_signature="%(o_sig)s", oauth_signature_method="HMAC-SHA1", oauth_timestamp="%(timestamp)d", oauth_token="%(o_token)s", oauth_version="1.0"' % locals()
+            auth_string = """OAuth oauth_consumer_key="%(oc_key)s",
+            oauth_nonce="%(o_nonce)s",
+            oauth_signature="%(o_sig)s",
+            oauth_signature_method="HMAC-SHA1",
+            oauth_timestamp="%(timestamp)d",
+            oauth_token="%(o_token)s",
+            oauth_version="1.0" """ % locals()
             headers = {"Authorization": auth_string}
         return url, params, data, headers
