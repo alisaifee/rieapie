@@ -2,4 +2,4 @@
 """
 from trickery import Api
 import wrappers
-version = "0.0.5"
+version = "0.0.5.2"
