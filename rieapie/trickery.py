@@ -47,7 +47,6 @@ class Component(object):
     def get(self, **kwargs):
         url, params, _, headers = self.rieapie.execute_pre_request_chain(GET, self.full_path(), kwargs, None, self.rieapie.headers)
         resp = requests.get(url, params=params, headers=headers)
-        print resp.text
         return resp.json()
 
     def delete(self, **kwargs):

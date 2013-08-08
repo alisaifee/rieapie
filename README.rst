@@ -10,7 +10,7 @@ An example for accessing google maps rest api using rieapie.
     import rieapie 
     gmap = rieapie.Api("http://maps.googleapis.com/maps/api")
     args = {
-     "origin"      : "Toronto",
+     "origin"      : "Toronto"
     ,"destination" : "Montreal"
     ,"avoid"       : "highways"
     ,"mode"        : "bicycling"
