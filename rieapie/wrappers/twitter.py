@@ -32,7 +32,8 @@ class Twitter(rieapie.Api):
             raise UserWarning("failed to obtain access token : %s" % resp_json["errors"])
         return resp.json()["access_token"]
 
-    def pre_request(self, method, url, params, data, headers):
+    @rieapie.pre_request
+    def sign(self, method, url, params, data, headers):
         if not (self.access_token and self.access_token_secret):
             headers = {"Authorization": "Bearer %s" % self.obtain_bearer_token()}
         else:
