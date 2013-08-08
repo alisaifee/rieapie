@@ -1,75 +1,81 @@
 import requests
 import logging
 
-class Component(object):
-    def __init__(self,name,rieapie,parent=None):
-        self.name=name
-        self.parent=parent
-        self.rieapie=rieapie
+GET = "GET"
+PUT = "PUT"
+POST = "POST"
+DELETE = "DELETE"
 
-    def __getattribute__(self,key):
+
+class Component(object):
+    def __init__(self, name, rieapie, parent=None):
+        self.name = name
+        self.parent = parent
+        self.rieapie = rieapie
+
+    def __getattribute__(self, key):
         try:
-            return object.__getattribute__(self,key)
+            return object.__getattribute__(self, key)
         except:
-            return Component(key,self.rieapie,self)
+            return Component(key, self.rieapie, self)
 
     def full_path(self):
-        return "/".join([self.rieapie.base_url,self.path()])
+        return "/".join([self.rieapie.base_url, self.path()])
 
     def path(self):
         path = []
         cur = self
         while cur.parent:
-            path+=[cur.name]
+            path += [cur.name]
             cur = cur.parent
         path += [cur.name]
         return "/".join(reversed(path))
 
     def __repr__(self):
-        return self.path().replace("/",".")
+        return self.path().replace("/", ".")
 
-    def __call__(self,ext=""):
+    def __call__(self, ext=""):
         if ext:
-            self.name+=".%s"%ext
+            self.name += ".%s" % ext
         return self
 
-    def __getitem__(self,key):
-        return Component(key,self.rieapie,self)
+    def __getitem__(self, key):
+        return Component(key, self.rieapie, self)
 
-    def get(self,**kwargs):
-        url,params,_=self.rieapie.pre_request(self.full_path(),kwargs,None)
-        resp=requests.get(url,params=params,headers=self.rieapie.headers)
+    def get(self, **kwargs):
+        url, params, _, headers = self.rieapie.pre_request(GET, self.full_path(), kwargs, None, self.rieapie.headers)
+        resp = requests.get(url, params=params, headers=headers)
+        print resp.text
         return resp.json()
 
     def delete(self, **kwargs):
-        url,params,_=self.rieapie.pre_request(self.full_path(),kwargs,None)
-        resp=requests.delete(url,params=params,headers=self.rieapie.headers)
+        url, params, _, headers = self.rieapie.pre_request(DELETE, self.full_path(), kwargs, None, self.rieapie.headers)
+        resp = requests.delete(url, params=params, headers=headers)
         return resp.json()
 
     def create(self, **kwargs):
-        url,params,data = self.rieapie.pre_request(self.full_path(),{},kwargs)
-        resp=requests.put(url,params=params,data=data,headers=self.rieapie.headers)
+        url, params, data, headers = self.rieapie.pre_request(PUT, self.full_path(), {}, kwargs, self.rieapie.headers)
+        resp = requests.put(url, params=params, data=data, headers=headers)
         return resp.json()
 
     def update(self, **kwargs):
-        url,params,data = self.rieapie.pre_request(self.full_path(),{},kwargs)
-        resp=requests.post(url,params=params,data=data,headers=self.rieapie.headers)
+        url, params, data, headers = self.rieapie.pre_request(POST, self.full_path(), {}, kwargs, self.rieapie.headers)
+        resp = requests.post(url, params=params, data=data, headers=headers)
         return resp.json()
 
 
 class Api(object):
-    def __init__(self,base_url,request_headers={}, debug=False):
-        self.base_url=base_url
-        self.headers=request_headers
+    def __init__(self, base_url, request_headers={}, debug=False):
+        self.base_url = base_url
+        self.headers = request_headers
         if debug:
             logging.basicConfig(level=logging.DEBUG)
 
-    def __getattribute__(self,key):
+    def __getattribute__(self, key):
         try:
-            return object.__getattribute__(self,key)
+            return object.__getattribute__(self, key)
         except:
-            return Component(key,self,None)
+            return Component(key, self, None)
 
-    def pre_request(self,url,params,data):
-        return url,params,data
-
+    def pre_request(self, method, url, params, data, headers):
+        return url, params, data, headers
