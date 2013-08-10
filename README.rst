@@ -24,7 +24,6 @@ An example for accessing the twitter api with the provided twitter wrapper.
 .. code-block:: python
 
     import rieapie
-    twitter = rieapie.wrappers.Twitter("consumer_key", "consumer_secret")
     params = {
      "consumer_key"    : "..."
     ,"consumer_secret" : "..."
