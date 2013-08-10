@@ -38,33 +38,33 @@ class Twitter(rieapie.Api):
             headers = {"Authorization": "Bearer %s" % self.obtain_bearer_token()}
         else:
             timestamp = int(time.time())
-            oc_key = self.consumer_key
-            o_nonce = base64.binascii.b2a_hex(bytearray(os.urandom(16)))
+            consumer_key = self.consumer_key
+            nonce = base64.binascii.b2a_hex(bytearray(os.urandom(16)))
             sig_params = dict(params)
             sig_params.update({
-                "oauth_consumer_key": oc_key
-                , "oauth_nonce": o_nonce
+                "oauth_consumer_key": consumer_key
+                , "oauth_nonce": nonce
                 , "oauth_signature_method": "HMAC-SHA1"
                 , "oauth_token": self.access_token
                 , "oauth_timestamp": timestamp
                 , "oauth_version": "1.0"
                 })
-            o_sig_pairs = []
+            sig_pairs = []
             for key in sorted(sig_params.keys()):
-                o_sig_pairs.append(urllib.quote_plus("%s=%s" % (key, str(sig_params[key]))))
+                sig_pairs.append(urllib.quote_plus("%s=%s" % (key, str(sig_params[key]))))
 
-            o_sig_string = "%s&%s&%s" % (method, urllib.quote_plus(url), urllib.quote("&").join(o_sig_pairs))
+            sig_string = "%s&%s&%s" % (method, urllib.quote_plus(url), urllib.quote("&").join(sig_pairs))
             signing_key = self.consumer_secret + "&" + self.access_token_secret
             hhmac = hmac.new(signing_key, digestmod=hashlib.sha1)
-            hhmac.update(o_sig_string)
-            o_sig = urllib.quote_plus(base64.b64encode(hhmac.digest()))
-            o_token = self.access_token
-            auth_string = """OAuth oauth_consumer_key="%(oc_key)s",
-            oauth_nonce="%(o_nonce)s",
-            oauth_signature="%(o_sig)s",
+            hhmac.update(sig_string)
+            sig = urllib.quote_plus(base64.b64encode(hhmac.digest()))
+            token = self.access_token
+            auth_string = """OAuth oauth_consumer_key="%(consumer_key)s",
+            oauth_nonce="%(nonce)s",
+            oauth_signature="%(sig)s",
             oauth_signature_method="HMAC-SHA1",
             oauth_timestamp="%(timestamp)d",
-            oauth_token="%(o_token)s",
+            oauth_token="%(token)s",
             oauth_version="1.0" """ % locals()
             headers = {"Authorization": auth_string}
         return url, params, data, headers

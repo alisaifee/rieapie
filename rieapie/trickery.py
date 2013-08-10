@@ -2,6 +2,7 @@ import requests
 import logging
 import functools
 import inspect
+import json
 
 GET = "GET"
 PUT = "PUT"
@@ -46,23 +47,23 @@ class Component(object):
 
     def get(self, **kwargs):
         url, params, _, headers = self.rieapie.execute_pre_request_chain(GET, self.full_path(), kwargs, None, self.rieapie.headers)
-        resp = requests.get(url, params=params, headers=headers)
-        return resp.json()
+        resp = self.rieapie.session.get(url, params=params, headers=headers)
+        return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
 
     def delete(self, **kwargs):
         url, params, _, headers = self.rieapie.execute_pre_request_chain(DELETE, self.full_path(), kwargs, None, self.rieapie.headers)
-        resp = requests.delete(url, params=params, headers=headers)
-        return resp.json()
+        resp = self.rieapie.session.delete(url, params=params, headers=headers)
+        return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
 
     def create(self, **kwargs):
         url, params, data, headers = self.rieapie.execute_pre_request_chain(PUT, self.full_path(), {}, kwargs, self.rieapie.headers)
-        resp = requests.put(url, params=params, data=data, headers=headers)
-        return resp.json()
+        resp = self.rieapie.session.put(url, params=params, data=data, headers=headers)
+        return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
 
     def update(self, **kwargs):
         url, params, data, headers = self.rieapie.execute_pre_request_chain(POST, self.full_path(), {}, kwargs, self.rieapie.headers)
-        resp = requests.post(url, params=params, data=data, headers=headers)
-        return resp.json()
+        resp = self.rieapie.session.post(url, params=params, data=data, headers=headers)
+        return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
 
 
 def pre_request(fn):
@@ -73,17 +74,33 @@ def pre_request(fn):
         return fn(*args, **kwargs)
     return __inner
 
+def post_request(fn):
+    fn.is_post_request = True
+
+    @functools.wraps(fn)
+    def __inner(*args, **kwargs):
+        return fn(*args, **kwargs)
+    return __inner
+
 
 class Api(object):
-    def __init__(self, base_url, request_headers={}, debug=False):
-        self.base_url = base_url
+    def __init__(self, base_url, request_headers={}, debug=False, pool_size=10, connect_timeout = 5, response_timeout = 10):
+        self.base_url = base_url.rstrip("/")
         self.headers = request_headers
         if debug:
             logging.basicConfig(level=logging.DEBUG)
         self.pre_request_chain = []
+        self.post_request_chain = []
         for name, method in inspect.getmembers(self, inspect.ismethod):
             if hasattr(method, "is_pre_request"):
                 self.pre_request_chain.append(method)
+            if hasattr(method, "is_post_request"):
+                self.post_request_chain.append(method)
+        self.session = requests.Session()
+        adapter = requests.adapters.HTTPAdapter(pool_maxsize = pool_size, max_retries=2)
+        self.session.mount("http://", adapter)
+        self.session.mount("https://", adapter)
+        self.root = Component("", self, None)
 
     def __getattribute__(self, key):
         try:
@@ -95,7 +112,30 @@ class Api(object):
     def default_pre_request(self, method, url, params, data, headers):
         return url, params, data, headers
 
+    @post_request
+    def default_post_request(self, status, body):
+        return json.loads(body)
+    @post_request
+    def fallback_post_request(self, status, body):
+        return body
+
     def execute_pre_request_chain(self, method, url, params, data, headers):
         for fn in self.pre_request_chain:
             url, params, data, headers = fn(method, url, params, data, headers)
         return url, params, data, headers
+
+    def execute_post_request_chain(self, status, body):
+        last_error = None
+        num_errors = 0
+        for fn in self.post_request_chain:
+            try:
+                body = fn(status, body)
+            except Exception as e:
+                num_errors += 1
+                last_error = e
+
+        if num_errors == len(self.post_request_chain):
+            raise last_error
+        else:
+            return body
+

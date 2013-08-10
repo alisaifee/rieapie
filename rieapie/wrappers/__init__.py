@@ -1,1 +1,1 @@
-from twitter import *
+from rieapie.wrappers.twitter import *
