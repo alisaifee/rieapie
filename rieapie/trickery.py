@@ -12,7 +12,7 @@ DELETE = "DELETE"
 
 class Component(object):
     def __init__(self, name, rieapie, parent=None):
-        self.name = name
+        self.name = str(name)
         self.parent = parent
         self.rieapie = rieapie
 
