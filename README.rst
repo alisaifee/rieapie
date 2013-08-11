@@ -1,5 +1,10 @@
-rieapie
--------
+.. |travis-ci| image:: https://secure.travis-ci.org/alisaifee/rieapie.png 
+    :target: https://travis-ci.org/#!/alisaifee/rieapie 
+.. |coverall| image:: https://coveralls.io/repos/alisaifee/rieapie/badge.png?branch=master
+    :target: https://coveralls.io/r/alisaifee/rieapie
+
+rieapie |travis-ci| |coverall| 
+------------------------------
 
 Introduction
 ============
