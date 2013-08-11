@@ -27,5 +27,5 @@ class TestGet(TestCase):
                 @rieapie.post_request
                 def parse(self, status, body):
                     return body[::-1]
-            print FooApi("http://nowhere.com").res1.res2.get()
+            assert "tset" == FooApi("http://nowhere.com").res1.res2.get()
 
