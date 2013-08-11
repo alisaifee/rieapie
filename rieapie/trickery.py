@@ -39,7 +39,7 @@ class Component(object):
 
     def __call__(self, ext=""):
         if ext:
-            self.name += ".%s" % ext
+            return Component("%s.%s" % (self.name, ext), self.rieapie, self.parent)
         return self
 
     def __getitem__(self, key):
