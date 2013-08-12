@@ -50,8 +50,8 @@ An example for accessing the twitter api with the provided twitter wrapper.
         print status['text']
 
 
-WTF is that name?
-================= 
+why is it 'rieapie'?
+====================
 * [**R**]est [**i**]s [**E**]asy [**a**]s [**P**]ython [**i**]s [**E**]asy
 * [**R**]est [**i**]s [**E**]asy [**a**]s [**PIE**]
 * [**R**]est [**i**]s [**E**]asy [**API**]... [**E**]asy 
