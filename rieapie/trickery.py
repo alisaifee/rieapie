@@ -22,10 +22,10 @@ class Component(object):
         except:
             return Component(key, self.rieapie, self)
 
-    def full_path(self):
-        return "/".join([self.rieapie.base_url, self.path()])
+    def __full_path(self):
+        return "/".join([self.rieapie.base_url, self.__path()])
 
-    def path(self):
+    def __path(self):
         path = []
         cur = self
         while cur.parent:
@@ -35,7 +35,7 @@ class Component(object):
         return "/".join(reversed(path))
 
     def __repr__(self):
-        return self.path().replace("/", ".")
+        return self.__path().replace("/", ".")
 
     def __call__(self, ext=""):
         if ext:
@@ -46,22 +46,22 @@ class Component(object):
         return Component(key, self.rieapie, self)
 
     def get(self, **kwargs):
-        url, params, _, headers = self.rieapie.execute_pre_request_chain(GET, self.full_path(), kwargs, None, self.rieapie.headers)
+        url, params, _, headers = self.rieapie.execute_pre_request_chain(GET, self.__full_path(), kwargs, None, self.rieapie.headers)
         resp = self.rieapie.session.get(url, params=params, headers=headers)
         return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
 
     def delete(self, **kwargs):
-        url, params, _, headers = self.rieapie.execute_pre_request_chain(DELETE, self.full_path(), kwargs, None, self.rieapie.headers)
+        url, params, _, headers = self.rieapie.execute_pre_request_chain(DELETE, self.__full_path(), kwargs, None, self.rieapie.headers)
         resp = self.rieapie.session.delete(url, params=params, headers=headers)
         return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
 
     def create(self, **kwargs):
-        url, params, data, headers = self.rieapie.execute_pre_request_chain(PUT, self.full_path(), {}, kwargs, self.rieapie.headers)
+        url, params, data, headers = self.rieapie.execute_pre_request_chain(PUT, self.__full_path(), {}, kwargs, self.rieapie.headers)
         resp = self.rieapie.session.put(url, params=params, data=data, headers=headers)
         return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
 
     def update(self, **kwargs):
-        url, params, data, headers = self.rieapie.execute_pre_request_chain(POST, self.full_path(), {}, kwargs, self.rieapie.headers)
+        url, params, data, headers = self.rieapie.execute_pre_request_chain(POST, self.__full_path(), {}, kwargs, self.rieapie.headers)
         resp = self.rieapie.session.post(url, params=params, data=data, headers=headers)
         return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
 
