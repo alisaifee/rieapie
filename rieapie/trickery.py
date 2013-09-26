@@ -11,19 +11,19 @@ DELETE = "DELETE"
 
 
 class Component(object):
-    def __init__(self, name, rieapie, parent=None):
+    def __init__(self, name, api_object, parent=None):
         self.name = str(name)
         self.parent = parent
-        self.rieapie = rieapie
+        self.api_object = api_object
 
     def __getattribute__(self, key):
         try:
             return object.__getattribute__(self, key)
-        except:
-            return Component(key, self.rieapie, self)
+        except AttributeError:
+            return Component(key, self.api_object, self)
 
     def __full_path(self):
-        return "/".join([self.rieapie.base_url, self.__path()])
+        return "/".join([self.api_object.base_url, self.__path()])
 
     def __path(self):
         path = []
@@ -39,31 +39,31 @@ class Component(object):
 
     def __call__(self, ext=""):
         if ext:
-            return Component("%s.%s" % (self.name, ext), self.rieapie, self.parent)
+            return Component("%s.%s" % (self.name, ext), self.api_object, self.parent)
         return self
 
     def __getitem__(self, key):
-        return Component(key, self.rieapie, self)
+        return Component(key, self.api_object, self)
 
     def get(self, **kwargs):
-        url, params, _, headers = self.rieapie.execute_pre_request_chain(GET, self.__full_path(), kwargs, None, self.rieapie.headers)
-        resp = self.rieapie.session.get(url, params=params, headers=headers)
-        return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
+        url, params, _, headers = self.api_object.execute_pre_request_chain(GET, self.__full_path(), kwargs, None, self.api_object.headers)
+        resp = self.api_object.session.get(url, params=params, headers=headers)
+        return self.api_object.execute_post_request_chain(resp.status_code, resp.text)
 
     def delete(self, **kwargs):
-        url, params, _, headers = self.rieapie.execute_pre_request_chain(DELETE, self.__full_path(), kwargs, None, self.rieapie.headers)
-        resp = self.rieapie.session.delete(url, params=params, headers=headers)
-        return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
+        url, params, _, headers = self.api_object.execute_pre_request_chain(DELETE, self.__full_path(), kwargs, None, self.api_object.headers)
+        resp = self.api_object.session.delete(url, params=params, headers=headers)
+        return self.api_object.execute_post_request_chain(resp.status_code, resp.text)
 
     def create(self, **kwargs):
-        url, params, data, headers = self.rieapie.execute_pre_request_chain(PUT, self.__full_path(), {}, kwargs, self.rieapie.headers)
-        resp = self.rieapie.session.put(url, params=params, data=data, headers=headers)
-        return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
+        url, params, data, headers = self.api_object.execute_pre_request_chain(PUT, self.__full_path(), {}, kwargs, self.api_object.headers)
+        resp = self.api_object.session.put(url, params=params, data=data, headers=headers)
+        return self.api_object.execute_post_request_chain(resp.status_code, resp.text)
 
     def update(self, **kwargs):
-        url, params, data, headers = self.rieapie.execute_pre_request_chain(POST, self.__full_path(), {}, kwargs, self.rieapie.headers)
-        resp = self.rieapie.session.post(url, params=params, data=data, headers=headers)
-        return self.rieapie.execute_post_request_chain(resp.status_code, resp.text)
+        url, params, data, headers = self.api_object.execute_pre_request_chain(POST, self.__full_path(), {}, kwargs, self.api_object.headers)
+        resp = self.api_object.session.post(url, params=params, data=data, headers=headers)
+        return self.api_object.execute_post_request_chain(resp.status_code, resp.text)
 
 
 def pre_request(fn):
@@ -105,7 +105,7 @@ class Api(object):
     def __getattribute__(self, key):
         try:
             return object.__getattribute__(self, key)
-        except:
+        except AttributeError:
             return Component(key, self, None)
 
     @pre_request
