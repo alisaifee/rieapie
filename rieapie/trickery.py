@@ -39,31 +39,47 @@ class Component(object):
 
     def __call__(self, ext=""):
         if ext:
-            return Component("%s.%s" % (self.name, ext), self.api_object, self.parent)
+            return Component("%s.%s" % (self.name, ext), self.api_object,
+                             self.parent)
         return self
 
     def __getitem__(self, key):
         return Component(key, self.api_object, self)
 
     def get(self, **kwargs):
-        url, params, _, headers = self.api_object.execute_pre_request_chain(GET, self.__full_path(), kwargs, None, self.api_object.headers)
+        url, params, _, headers = self.api_object.execute_pre_request(
+            GET, self.__full_path(), kwargs, None,
+            self.api_object.headers)
         resp = self.api_object.session.get(url, params=params, headers=headers)
-        return self.api_object.execute_post_request_chain(resp.status_code, resp.text)
+        return self.api_object.execute_post_request(resp.status_code,
+                                                    resp.text)
 
     def delete(self, **kwargs):
-        url, params, _, headers = self.api_object.execute_pre_request_chain(DELETE, self.__full_path(), kwargs, None, self.api_object.headers)
-        resp = self.api_object.session.delete(url, params=params, headers=headers)
-        return self.api_object.execute_post_request_chain(resp.status_code, resp.text)
+        url, params, _, headers = self.api_object.execute_pre_request(
+            DELETE, self.__full_path(), kwargs, None,
+            self.api_object.headers)
+        resp = self.api_object.session.delete(url, params=params,
+                                              headers=headers)
+        return self.api_object.execute_post_request(resp.status_code,
+                                                    resp.text)
 
     def create(self, **kwargs):
-        url, params, data, headers = self.api_object.execute_pre_request_chain(PUT, self.__full_path(), {}, kwargs, self.api_object.headers)
-        resp = self.api_object.session.put(url, params=params, data=data, headers=headers)
-        return self.api_object.execute_post_request_chain(resp.status_code, resp.text)
+        url, params, data, headers = self.api_object.execute_pre_request(
+            PUT, self.__full_path(), {}, kwargs,
+            self.api_object.headers)
+        resp = self.api_object.session.put(url, params=params, data=data,
+                                           headers=headers)
+        return self.api_object.execute_post_request(resp.status_code,
+                                                    resp.text)
 
     def update(self, **kwargs):
-        url, params, data, headers = self.api_object.execute_pre_request_chain(POST, self.__full_path(), {}, kwargs, self.api_object.headers)
-        resp = self.api_object.session.post(url, params=params, data=data, headers=headers)
-        return self.api_object.execute_post_request_chain(resp.status_code, resp.text)
+        url, params, data, headers = self.api_object.execute_pre_request(
+            POST, self.__full_path(), {}, kwargs,
+            self.api_object.headers)
+        resp = self.api_object.session.post(url, params=params, data=data,
+                                            headers=headers)
+        return self.api_object.execute_post_request(resp.status_code,
+                                                    resp.text)
 
 
 def pre_request(fn):
@@ -72,7 +88,9 @@ def pre_request(fn):
     @functools.wraps(fn)
     def __inner(*args, **kwargs):
         return fn(*args, **kwargs)
+
     return __inner
+
 
 def post_request(fn):
     fn.is_post_request = True
@@ -80,11 +98,13 @@ def post_request(fn):
     @functools.wraps(fn)
     def __inner(*args, **kwargs):
         return fn(*args, **kwargs)
+
     return __inner
 
 
 class Api(object):
-    def __init__(self, base_url, request_headers={}, debug=False, pool_size=10, connect_timeout = 5, response_timeout = 10):
+    def __init__(self, base_url, request_headers={}, debug=False, pool_size=10,
+                 connect_timeout=5, response_timeout=10):
         self.base_url = base_url.rstrip("/")
         self.headers = request_headers
         if debug:
@@ -97,7 +117,8 @@ class Api(object):
             if hasattr(method, "is_post_request"):
                 self.post_request_chain.append(method)
         self.session = requests.Session()
-        adapter = requests.adapters.HTTPAdapter(pool_maxsize = pool_size, max_retries=2)
+        adapter = requests.adapters.HTTPAdapter(pool_maxsize=pool_size,
+                                                max_retries=2)
         self.session.mount("http://", adapter)
         self.session.mount("https://", adapter)
         self.root = Component("", self, None)
@@ -115,16 +136,17 @@ class Api(object):
     @post_request
     def default_post_request(self, status, body):
         return json.loads(body)
+
     @post_request
     def fallback_post_request(self, status, body):
         return body
 
-    def execute_pre_request_chain(self, method, url, params, data, headers):
+    def execute_pre_request(self, method, url, params, data, headers):
         for fn in self.pre_request_chain:
             url, params, data, headers = fn(method, url, params, data, headers)
         return url, params, data, headers
 
-    def execute_post_request_chain(self, status, body):
+    def execute_post_request(self, status, body):
         last_error = None
         num_errors = 0
         for fn in self.post_request_chain:
